@@ -34,7 +34,7 @@
     "ember-pardon": "0.0.7"
   },
   "keywords": [
-    "ember-addon",
+    "ember-addon"
   ],
   "ember-addon": {
     "configPath": "tests/dummy/config"
