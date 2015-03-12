@@ -1,0 +1,10 @@
+<h1>{{{label}}}</h1>
+<p>{{{description}}}</p>
+<a {{action 'togglePreserveView' target='view'}}>
+	Preserve View: 
+	{{#if view.preserveView}}
+	TRUE
+	{{else}}
+	FALSE
+	{{/if}}
+</a>

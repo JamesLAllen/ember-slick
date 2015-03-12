@@ -1,0 +1,27 @@
+<div class="page">
+	<h4>-------</h4>
+	{{#link-to 'items.index'}}
+		<h3>Index</h3>
+	{{/link-to}}
+	<ul class='submenu'>
+	{{#each item in items}}
+			<li>
+				<h3>{{#link-to 'items.item' item.id}}
+				{{{item.label}}}
+				{{/link-to}}</h3>
+			</li>
+	{{/each}}
+	</ul>
+
+	<div class="contents">
+		{{!-- <h1>{{{label}}}</h1>
+		<p>{{{description}}}</p> --}}
+		{{view 'items.item-page'}}
+	</div>
+
+	<ul class='submenu'>
+	{{#each category in categories}}
+		{{view 'categories.category-tile' tagName='li'}}
+	{{/each}}
+	</ul>
+</div>

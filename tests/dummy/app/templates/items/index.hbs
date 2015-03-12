@@ -1,0 +1,12 @@
+<div class="page">
+	<h1>Projects Index</h1>
+	<ul class="submenu">
+	{{#each item in model}}
+		<li>
+			<h3>{{#link-to 'items.item' item.id}}
+			{{{item.label}}}
+			{{/link-to}}</h3>
+		</li>
+	{{/each}}
+	</ul>
+</div>
