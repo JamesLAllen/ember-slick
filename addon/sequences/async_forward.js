@@ -4,7 +4,7 @@ import SequenceAsync from './sequence_async';
 import ArrangeForward from './arrange_forward';
 
 var AsyncForward = SequenceAnimation.extend(SequenceAsync, ArrangeForward, {
-	type: 'asyncForward',
+	type: 'asyncForward'
 });
 
 export default AsyncForward;

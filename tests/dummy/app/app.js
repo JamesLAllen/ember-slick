@@ -3,7 +3,9 @@ import Resolver from 'ember/resolver';
 import loadInitializers from 'ember/load-initializers';
 import config from './config/environment';
 
-import EmberSlick from './ember_slick_global';
+import EmberSlick from 'ember-slick';
+
+Ember.View.reopen(EmberSlick);
 
 Ember.MODEL_FACTORY_INJECTIONS = true;
 

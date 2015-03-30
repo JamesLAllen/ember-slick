@@ -1,7 +1,7 @@
 import Ember from 'ember';
-import SlickAnimatedView from 'ember-slick/slick_animated_view';
+import EmberSlick from 'ember-slick';
 
-var ProjectPage = Ember.View.extend(SlickAnimatedView, {
+var ProjectPage = Ember.View.extend({
 	preserveView: false,
 	templateName:'items/item-page',
 	actions:{

@@ -1,7 +1,7 @@
 import Ember from 'ember';
-import SlickAnimatedView from 'ember-slick/slick_animated_view';
+import EmberSlick from 'ember-slick';
 
-export default Ember.View.extend(SlickAnimatedView, {
+export default Ember.View.extend({
 
 	
 });

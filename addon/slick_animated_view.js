@@ -1,6 +1,8 @@
 import Ember from 'ember';
-// import EmberPardon from '../ember-pardon/ember_pardon';
-import EmberSlick from './ember_slick';
+import EmberPardon from 'ember-pardon';
+import SlickCore from './slick_core';
+
+Ember.View.reopen(EmberPardon);
 
 var SlickAnimatedView = Ember.Mixin.create({
 	init:function(){
@@ -8,19 +10,25 @@ var SlickAnimatedView = Ember.Mixin.create({
 		if (this.isVirtual){
 			return;
 		}
-		this.slick = EmberSlick(this);
+		this.slick = SlickCore(this);
 	},
 	willShow:Ember.K,
 	willHide:Ember.K,
 	show:function(complete, options){
-		this.set('isVisible', true);
+		// this.set('isVisible', true);
+		var complete = complete || Ember.K;
+		// this.$().fadeTo(500, 1, complete);
 		complete();
 	},
 	hide:function(complete, options){
+		var complete = complete || Ember.K;
+		// this.$().fadeTo(500, 0, complete);
 		complete();
 	},
-	showDidComplete:Ember.K,
-	hideDidComplete:Ember.K,
+	showInterrupt:Ember.K,
+	hideInterrupt:Ember.K,
+	didShow:Ember.K,
+	didHide:Ember.K,
 	childrenWillShow:Ember.K,
 	childrenWillHide:Ember.K,
 	childrenDidShow:Ember.K,

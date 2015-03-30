@@ -1,9 +1,34 @@
 import Ember from 'ember';
+import defaults from './defaults';
+import SlickFactory from './slick_factory';
 
 // var store = {};
 var instanceIndex = 0;
+var slickFactory = SlickFactory.create();
 
-var SlickCore = Ember.Object.extend(Ember.Evented, {
+function SlickCore(view){
+	if (view.slick){
+		console.log('userOptions', view.slick);
+	}
+	var slickOptions = view.slick || {};
+	var userOptions = Ember.copy(slickOptions);
+	var defaultOptions = Ember.copy(defaults);
+
+	userOptions.animations = Ember.merge(defaultOptions.animations, userOptions.animations);
+	userOptions.sequences = Ember.merge(defaultOptions.sequences, userOptions.sequences);
+	userOptions.states = Ember.merge(defaultOptions.states, userOptions.states);
+	
+	var config = Ember.merge(defaultOptions, userOptions);
+	config.sequences = slickFactory.assembleSequences(config.sequences);
+	console.log('config', config.sequences);
+	config.animations = slickFactory.assembleAnimations();
+	config.states = slickFactory.assembleStates();
+	config.view = view;
+	var core = SlickObject.createWithMixins(config);
+	return core;
+}
+
+var SlickObject = Ember.Object.extend(Ember.Evented, {
 	view: null,
 	sequences: null,
 	animations: null,
@@ -26,7 +51,7 @@ var SlickCore = Ember.Object.extend(Ember.Evented, {
 		this.addViewObservers();
 	},
 	toString:function(){
-		return '<EmberSlick:' + this._uid + '>';
+		return '<SlickCore:' + this._uid + '>';
 	},
 	getState:function(){
 		return this._currentState;
@@ -83,7 +108,9 @@ var SlickCore = Ember.Object.extend(Ember.Evented, {
 		}
 	},
 	transitionTo:function(state){
+		// schedule updating the element's classes
 		Ember.run.scheduleOnce('render', this, this._updateClasses, state);
+		// scheduling the transition to start after render
 		Ember.run.scheduleOnce('afterRender', this, this._transitionTo, state);
 	},
 
@@ -115,16 +142,15 @@ var SlickCore = Ember.Object.extend(Ember.Evented, {
 	},
 	
 	addViewObservers:function(){
-		// Ember.addObserver(this.view, 'childViews', Ember.$.proxy(this.childrenUpdate, this));
 		this.addAnimationListeners();
 		this.addSequenceListeners();
-		
 	},
 	addAnimationListeners:function(){
 		var showing = this.animations['showing'];
 		var hiding = this.animations['hiding'];
 		showing.set('view', this.view);
 		hiding.set('view', this.view);
+
 		showing.on('started', this, this.handleAnimationStart);
 		showing.on('stopped', this, this.handleAnimationStopped);
 		showing.on('completed', this, this.handleAnimationComplete);
@@ -173,12 +199,9 @@ var SlickCore = Ember.Object.extend(Ember.Evented, {
 		hiding.off('completed', this, this.handleSequenceComplete);
 	},
 	removeChild:function(slick){
-		// slick._destroyOnHide = true;
 		this._children.removeObject(slick);
 		this._childrenRemoving.addObject(slick);
 		this._childrenRemoving = this._childrenRemoving.sortBy('_uIndex');
-		// Ember.run.scheduleOnce('sync', this, this.childrenUpdate);
-		// Ember.run.debounce(this, this.childrenUpdate, 200);
 		this.childrenUpdate();
 	},
 	addChild:function(slick){
@@ -261,6 +284,7 @@ var SlickCore = Ember.Object.extend(Ember.Evented, {
 			complete();
 			return;
 		}
+		// console.log('elementCreated', this.view.element);
 		this.view.$().addClass('animating');
 		this._animationState = name;
 		switch(name){
@@ -269,6 +293,8 @@ var SlickCore = Ember.Object.extend(Ember.Evented, {
 					complete();
 					return;
 				}
+				this.view.set('isVisible', true);
+				this.view.trigger('willShow');
 				this.view.trigger('show', complete);
 				break;
 			case 'hiding':
@@ -276,6 +302,7 @@ var SlickCore = Ember.Object.extend(Ember.Evented, {
 					complete();
 					return;
 				}
+				this.view.trigger('willHide');
 				this.view.trigger('hide', complete);
 				break;
 		}
@@ -291,6 +318,18 @@ var SlickCore = Ember.Object.extend(Ember.Evented, {
 			return;
 		}
 		this.view.$().removeClass('animating');
+		var completeEvent;
+		switch(animation.name){
+			case 'showing':
+				completeEvent = 'didShow';
+				this.view.trigger(completeEvent);
+				break;
+			case 'hiding':
+				completeEvent = 'didHide';
+				this.view.trigger(completeEvent);
+				break;
+		}
+		
 	},
 	handleSequenceStart:function(sequence){
 		var name = sequence.name;
@@ -301,15 +340,9 @@ var SlickCore = Ember.Object.extend(Ember.Evented, {
 		var name = sequence.name;
 		switch(name){
 			case 'showing':
-				// if (this.getState() === 'shown'){
-				// 	return;
-				// }
 				this.transitionTo('showing');
 				break;
 			case 'hiding':
-				// if (this.getState() === 'hidden'){
-				// 	return;
-				// }
 				this.transitionTo('hiding');
 				break;
 		}
@@ -385,6 +418,7 @@ var SlickCore = Ember.Object.extend(Ember.Evented, {
 	},
 	readyToShow:function(){
 		var parentView = this.view.get('parentView');
+
 		if (!parentView || (parentView && !parentView.slick)){
 			return true;
 		}
@@ -488,7 +522,5 @@ var SlickCore = Ember.Object.extend(Ember.Evented, {
 		this.destroy();
 	},
 });
-
-// SlickCore.store = store;
 
 export default SlickCore;
